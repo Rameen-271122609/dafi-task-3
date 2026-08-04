@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /signup
+Disallow: /dashboard
+Disallow: /appointments
+Disallow: /records
+Disallow: /patients
+Disallow: /availability
+Disallow: /settings
+Disallow: /api/
