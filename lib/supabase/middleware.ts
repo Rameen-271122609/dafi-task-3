@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-import { isSupabaseConfigured } from "@/lib/env";
+import {
+  isSupabaseConfigured,
+  supabasePublishableKey,
+  supabaseUrl,
+} from "@/lib/env";
 import type { Database } from "@/lib/types/database";
 
 const PUBLIC_ROUTES = ["/", "/login", "/signup", "/auth"];
@@ -25,8 +29,8 @@ export async function updateSession(request: NextRequest) {
   if (!isSupabaseConfigured()) return response;
 
   const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    supabasePublishableKey(),
     {
       cookies: {
         getAll() {

@@ -1,14 +1,15 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+import { supabasePublishableKey, supabaseUrl } from "@/lib/env";
 import type { Database } from "@/lib/types/database";
 
 /**
- * Supabase client for use inside client components. Reads the public
- * anon key, so every query is still constrained by row level security.
+ * Supabase client for use inside client components. Reads the browser-safe
+ * publishable key, so every query is still constrained by row level security.
  */
 export function createClient() {
   return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    supabaseUrl(),
+    supabasePublishableKey()
   );
 }
