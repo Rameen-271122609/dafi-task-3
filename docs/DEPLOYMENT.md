@@ -224,6 +224,29 @@ You want `HTTP/2 200`, a `strict-transport-security` header, and
 
 ---
 
+## Appendix — Vercel as a staging target
+
+The EC2 path above is the production setup. A Vercel deployment is useful as a
+quick preview while the instance is being provisioned, and it needs no server
+administration:
+
+```bash
+npx vercel link
+npx vercel env add NEXT_PUBLIC_SUPABASE_URL production
+npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
+npx vercel env add NEXT_PUBLIC_SITE_URL production
+npx vercel --prod
+```
+
+[`vercel.json`](../vercel.json) carries the same security headers Nginx adds on
+EC2. Remember to add the resulting origin to Supabase **Authentication → URL
+Configuration → Redirect URLs**, otherwise email confirmation links bounce.
+
+Vercel runs the app on its own platform, so PM2, Nginx and Certbot play no part
+there — those belong to the EC2 deployment.
+
+---
+
 ## Troubleshooting
 
 **502 Bad Gateway** — the app is not listening. `pm2 logs meditrack --lines 50`.
