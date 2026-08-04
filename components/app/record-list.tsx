@@ -90,7 +90,9 @@ export function RecordList({
 
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-ink-900">{record.title}</p>
-                <p className="mt-0.5 text-xs text-ink-500">
+                {/* The upload date is rendered in the viewer's timezone, which
+                    can land on a different calendar day than the server's. */}
+                <p className="mt-0.5 text-xs text-ink-500" suppressHydrationWarning>
                   {RECORD_TYPE_LABELS[record.record_type]} ·{" "}
                   {formatBytes(record.file_size)} ·{" "}
                   {format(new Date(record.created_at), "d MMM yyyy")}

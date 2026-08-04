@@ -136,6 +136,31 @@ export async function listAppointments(options: {
   return (data ?? []) as unknown as AppointmentDetail[];
 }
 
+/** Row count only, so a "total visits" figure is not capped by a page limit. */
+export async function countAppointments(options: {
+  role: "patient" | "doctor";
+  userId: string;
+  from?: string;
+  to?: string;
+  statuses?: AppointmentStatus[];
+}): Promise<number> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq(options.role === "doctor" ? "doctor_id" : "patient_id", options.userId);
+
+  if (options.from) query = query.gte("scheduled_at", options.from);
+  if (options.to) query = query.lte("scheduled_at", options.to);
+  if (options.statuses?.length) query = query.in("status", options.statuses);
+
+  const { count, error } = await query;
+  if (error) throw error;
+
+  return count ?? 0;
+}
+
 export async function getAppointment(id: string): Promise<AppointmentDetail | null> {
   const supabase = await createClient();
   const { data } = await supabase

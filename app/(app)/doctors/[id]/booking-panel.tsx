@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { CalendarOff } from "lucide-react";
 
 import { bookAppointment, type BookingState } from "@/app/(app)/doctors/actions";
@@ -24,16 +24,29 @@ export function BookingPanel({
   canBook: boolean;
   blockedReason?: string;
 }) {
-  const dates = useMemo(() => upcomingDates(BOOKING_WINDOW_DAYS), []);
-  const [selectedDate, setSelectedDate] = useState(dates[0]!.value);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [state, formAction] = useActionState<BookingState, FormData>(
     bookAppointment,
     {}
   );
 
+  // The calendar is expanded in the viewer's timezone, which the server does
+  // not share, so both the date rail and the slots are built after mount.
+  // Rendering them during SSR would mismatch on hydration whenever the two
+  // clocks fall on different calendar days.
+  const [dates, setDates] = useState<ReturnType<typeof upcomingDates>>([]);
+  const [selectedDate, setSelectedDate] = useState("");
+
+  useEffect(() => {
+    const upcoming = upcomingDates(BOOKING_WINDOW_DAYS);
+    setDates(upcoming);
+    setSelectedDate(upcoming[0]!.value);
+  }, []);
+
+  const mounted = dates.length > 0;
+
   const slots = useMemo(
-    () => buildDaySlots(selectedDate, availability, bookings),
+    () => (selectedDate ? buildDaySlots(selectedDate, availability, bookings) : []),
     [selectedDate, availability, bookings]
   );
 
@@ -81,6 +94,15 @@ export function BookingPanel({
       <div>
         <p className="label">Choose a date</p>
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+          {!mounted
+            ? Array.from({ length: 7 }, (_, index) => (
+                <div
+                  key={index}
+                  aria-hidden="true"
+                  className="h-[58px] w-16 shrink-0 animate-pulse rounded-xl bg-ink-100"
+                />
+              ))
+            : null}
           {dates.map((date) => {
             const active = date.value === selectedDate;
             return (
@@ -113,14 +135,20 @@ export function BookingPanel({
       <div>
         <p className="label">
           Available times
-          {slots.length ? (
+          {mounted && slots.length ? (
             <span className="ml-1 font-normal text-ink-400">
               ({openSlots.length} of {slots.length} free)
             </span>
           ) : null}
         </p>
 
-        {slots.length === 0 ? (
+        {!mounted ? (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" aria-hidden="true">
+            {Array.from({ length: 8 }, (_, index) => (
+              <div key={index} className="h-10 animate-pulse rounded-lg bg-ink-100" />
+            ))}
+          </div>
+        ) : slots.length === 0 ? (
           <p className="rounded-lg border border-dashed border-ink-200 px-4 py-6 text-center text-sm text-ink-500">
             The clinic is closed on this day. Try another date.
           </p>

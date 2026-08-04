@@ -17,6 +17,7 @@ import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireSession } from "@/lib/auth";
 import {
+  countAppointments,
   listAppointments,
   listAvailability,
   listDoctorPatients,
@@ -40,7 +41,7 @@ export default async function DashboardPage() {
 async function PatientOverview({ userId, name }: { userId: string; name: string }) {
   const now = new Date().toISOString();
 
-  const [upcoming, past, records] = await Promise.all([
+  const [upcoming, past, pastTotal, records] = await Promise.all([
     listAppointments({
       role: "patient",
       userId,
@@ -52,8 +53,15 @@ async function PatientOverview({ userId, name }: { userId: string; name: string 
       role: "patient",
       userId,
       to: now,
+      statuses: ["pending", "confirmed", "completed"],
       ascending: false,
       limit: 3,
+    }),
+    countAppointments({
+      role: "patient",
+      userId,
+      to: now,
+      statuses: ["pending", "confirmed", "completed"],
     }),
     listRecords(userId),
   ]);
@@ -85,8 +93,8 @@ async function PatientOverview({ userId, name }: { userId: string; name: string 
         <StatCard
           icon={CalendarCheck}
           label="Past consultations"
-          value={past.length}
-          hint="Last three shown below"
+          value={pastTotal}
+          hint={pastTotal > 3 ? "Three most recent shown below" : "Your visit history"}
         />
         <StatCard
           icon={FolderClosed}

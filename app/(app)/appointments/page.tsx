@@ -49,7 +49,8 @@ export default async function AppointmentsPage({
         ? {
             role,
             userId,
-            statuses: ["completed"],
+            to: now,
+            statuses: ["pending", "confirmed", "completed"],
             ascending: false,
           }
         : {
