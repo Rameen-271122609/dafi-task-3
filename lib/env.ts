@@ -27,6 +27,17 @@ export function isSupabaseConfigured() {
   return Boolean(supabaseUrl() && supabasePublishableKey());
 }
 
+/**
+ * Absolute origin the app is served from, used for metadata and the links
+ * Supabase puts in confirmation emails. On EC2 this comes from .env; on
+ * Vercel the platform injects the production hostname, so neither host needs
+ * the value hard coded.
+ */
 export function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+
+  const vercelHost = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelHost) return `https://${vercelHost}`;
+
+  return "http://localhost:3000";
 }

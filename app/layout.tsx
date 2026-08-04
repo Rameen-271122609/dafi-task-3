@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
 
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { siteUrl } from "@/lib/env";
 
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const origin = siteUrl();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(origin),
   title: {
     default: `${APP_NAME} — ${APP_TAGLINE}`,
     template: `%s · ${APP_NAME}`,
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    url: siteUrl,
+    url: origin,
     title: `${APP_NAME} — ${APP_TAGLINE}`,
     description:
       "Book appointments, publish consulting hours and keep every report in one secure medical record.",
