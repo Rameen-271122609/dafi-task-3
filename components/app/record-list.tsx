@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
   ExternalLink,
   FileImage,
@@ -16,6 +15,7 @@ import { deleteRecord, getRecordUrl } from "@/app/(app)/records/actions";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RECORD_TYPE_LABELS } from "@/lib/constants";
+import { formatClinicDateShort } from "@/lib/datetime";
 import type { MedicalRecord } from "@/lib/types/database";
 import { formatBytes } from "@/lib/utils";
 
@@ -90,12 +90,10 @@ export function RecordList({
 
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-ink-900">{record.title}</p>
-                {/* The upload date is rendered in the viewer's timezone, which
-                    can land on a different calendar day than the server's. */}
-                <p className="mt-0.5 text-xs text-ink-500" suppressHydrationWarning>
+                <p className="mt-0.5 text-xs text-ink-500">
                   {RECORD_TYPE_LABELS[record.record_type]} ·{" "}
                   {formatBytes(record.file_size)} ·{" "}
-                  {format(new Date(record.created_at), "d MMM yyyy")}
+                  {formatClinicDateShort(record.created_at)}
                 </p>
                 {record.notes ? (
                   <p className="mt-2 text-sm text-ink-600">{record.notes}</p>

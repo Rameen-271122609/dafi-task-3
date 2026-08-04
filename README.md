@@ -140,9 +140,19 @@ patient account to walk the whole flow.
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Project Settings → API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | the **anon public** key |
-| `NEXT_PUBLIC_SITE_URL` | yes in production | absolute origin, used for metadata and auth redirects |
+| `NEXT_PUBLIC_SITE_URL` | on a self-hosted box | absolute origin, used for metadata and auth redirects; inferred automatically on Vercel |
+| `NEXT_PUBLIC_CLINIC_TIMEZONE` | no | IANA zone the clinic runs in, default `Asia/Karachi` |
 | `PORT` | no | defaults to 3000 |
 | `HOSTNAME` | no | defaults to `127.0.0.1` in the PM2 config |
+
+### A note on time
+
+Appointments are stored as `timestamptz` and rendered against a single clinic
+timezone rather than the host's. Production servers run in UTC, so formatting
+with the system zone would show a 10:30 appointment as 05:30 to staff — and a
+different time again to a patient travelling abroad. Pinning the zone in
+[`lib/datetime.ts`](lib/datetime.ts) makes the server and the browser agree,
+which also removes any hydration mismatch on the booking calendar.
 
 There is no service-role key in this project. Every query runs as the
 signed-in user, so row level security is the only thing standing between one

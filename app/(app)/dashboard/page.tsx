@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { endOfDay, startOfDay } from "date-fns";
 import {
   CalendarCheck,
   CalendarDays,
@@ -16,6 +15,7 @@ import { StatCard } from "@/components/app/stat-card";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireSession } from "@/lib/auth";
+import { clinicDayRange, formatClinicTime } from "@/lib/datetime";
 import {
   countAppointments,
   listAppointments,
@@ -151,14 +151,14 @@ async function PatientOverview({ userId, name }: { userId: string; name: string 
 /* -------------------------------------------------------------------- */
 
 async function DoctorOverview({ userId, name }: { userId: string; name: string }) {
-  const today = new Date();
+  const today = clinicDayRange();
 
   const [todaySchedule, pending, patients, availability] = await Promise.all([
     listAppointments({
       role: "doctor",
       userId,
-      from: startOfDay(today).toISOString(),
-      to: endOfDay(today).toISOString(),
+      from: today.from,
+      to: today.to,
     }),
     listAppointments({
       role: "doctor",
@@ -201,7 +201,7 @@ async function DoctorOverview({ userId, name }: { userId: string; name: string }
           value={todaySchedule.length}
           hint={
             todaySchedule[0]
-              ? `First at ${new Date(todaySchedule[0].scheduled_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+              ? `First at ${formatClinicTime(todaySchedule[0].scheduled_at)}`
               : "Nothing scheduled today"
           }
         />

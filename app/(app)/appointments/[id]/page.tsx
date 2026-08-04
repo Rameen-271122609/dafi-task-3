@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import {
   ArrowLeft,
   CalendarDays,
@@ -21,6 +20,7 @@ import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { requireSession } from "@/lib/auth";
+import { formatClinicDateLong, formatClinicTime } from "@/lib/datetime";
 import { getAppointment, getProfile, listRecords } from "@/lib/queries";
 import { ageFromDateOfBirth, formatCurrency } from "@/lib/utils";
 
@@ -51,7 +51,6 @@ export default async function AppointmentDetailPage({
     isDoctor ? getProfile(appointment.patient_id) : Promise.resolve(null),
   ]);
 
-  const scheduled = new Date(appointment.scheduled_at);
   const counterpart = isDoctor ? appointment.patient : appointment.doctor?.profile;
   const patientAge = ageFromDateOfBirth(patient?.date_of_birth ?? null);
 
@@ -80,12 +79,12 @@ export default async function AppointmentDetailPage({
               <div>
                 <StatusBadge status={appointment.status} />
                 <h1 className="mt-3 text-2xl font-bold tracking-tight text-ink-900">
-                  {format(scheduled, "EEEE d MMMM yyyy")}
+                  {formatClinicDateLong(appointment.scheduled_at)}
                 </h1>
                 <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-600">
                   <span className="inline-flex items-center gap-1.5">
                     <Clock className="h-4 w-4 text-ink-400" aria-hidden="true" />
-                    {format(scheduled, "h:mm a")}
+                    {formatClinicTime(appointment.scheduled_at)}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <CalendarDays className="h-4 w-4 text-ink-400" aria-hidden="true" />

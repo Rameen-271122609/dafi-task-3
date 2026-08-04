@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { formatClinicDate, formatClinicTime } from "@/lib/datetime";
 import type { AppointmentDetail, UserRole } from "@/lib/types/database";
 
 export function AppointmentCard({
@@ -23,7 +23,6 @@ export function AppointmentCard({
   const subtitle = showingPatient
     ? (appointment.patient?.phone ?? appointment.patient?.email ?? "")
     : appointment.doctor?.specialization;
-  const scheduled = new Date(appointment.scheduled_at);
 
   return (
     <Link
@@ -44,11 +43,12 @@ export function AppointmentCard({
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-ink-600">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4 text-ink-400" aria-hidden="true" />
-              {format(scheduled, "EEE d MMM yyyy")}
+              {formatClinicDate(appointment.scheduled_at)}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-ink-400" aria-hidden="true" />
-              {format(scheduled, "h:mm a")} · {appointment.duration_minutes} min
+              {formatClinicTime(appointment.scheduled_at)} ·{" "}
+              {appointment.duration_minutes} min
             </span>
             {!showingPatient && appointment.doctor?.clinic_name ? (
               <span className="inline-flex items-center gap-1.5">

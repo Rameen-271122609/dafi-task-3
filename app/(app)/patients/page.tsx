@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { ChevronRight, Users } from "lucide-react";
 
 import { PageHeader } from "@/components/app/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireDoctor } from "@/lib/auth";
+import { formatClinicDateShort } from "@/lib/datetime";
 import { listDoctorPatients } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Patients" };
@@ -75,7 +75,7 @@ export default async function PatientsPage({
                     {entry.visits} {entry.visits === 1 ? "visit" : "visits"}
                   </p>
                   <p className="text-xs text-ink-400">
-                    Last {format(new Date(entry.lastVisit), "d MMM yyyy")}
+                    Last {formatClinicDateShort(entry.lastVisit)}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />

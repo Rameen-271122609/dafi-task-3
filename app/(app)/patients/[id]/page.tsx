@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { ArrowLeft, Droplet, Mail, MapPin, Phone } from "lucide-react";
 
 import { PageHeader } from "@/components/app/page-header";
@@ -10,6 +9,7 @@ import { RecordUploader } from "@/components/app/record-uploader";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { requireDoctor } from "@/lib/auth";
+import { formatClinicDateTime } from "@/lib/datetime";
 import { getProfile, listAppointments, listRecords } from "@/lib/queries";
 import { ageFromDateOfBirth } from "@/lib/utils";
 
@@ -75,10 +75,7 @@ export default async function PatientRecordPage({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
                         <p className="font-medium text-ink-900">
-                          {format(
-                            new Date(appointment.scheduled_at),
-                            "d MMM yyyy, h:mm a"
-                          )}
+                          {formatClinicDateTime(appointment.scheduled_at)}
                         </p>
                         <StatusBadge status={appointment.status} />
                       </div>
